@@ -20,15 +20,21 @@ LOCATIONS = {
     'Beer Sheva' : (31.251320, 34.793456),
     'South' : (29.797318, 34.939234),
 }
-SEARCH_KEYWORDS = [u'אולם_אירועים', u'אולם_חתונות', u'Wedding_Venue', u'Wedding_Hall']
+SEARCH_KEYWORDS = [u'אולם_אירועים', u'אולם_חתונות', u'Wedding_Venue', u'Wedding_Hall', u'Event_Venue']
 
 def main(argv):
     # Usage check
-    if 1 != len(argv):
-        print("Usage: python %s" % argv[0])
+    if 2 != len(argv):
+        print("Usage: python {} fetch|list".format(argv[0]))
         return -1
 
-    fetchPlaces()
+    task = argv[1]
+    if task == 'fetch':
+        fetchPlaces()
+    elif task == 'list':
+        listPlaces()
+    else:
+        print("Unknown task {}".format(task))
 
 
 def fetchPlaces():
@@ -81,6 +87,13 @@ def getPlaceDetails(placeId):
         print("Error accrued: {}".format(response['status']))
         return
     return response['result']
+
+def listPlaces():
+    placesDict = loadObj("placesDict")
+    print("Loaded {} places".format(len(placesDict)))
+    print("place_id\t\t\t\t\tname")
+    for key,value in placesDict.items():
+        print("{}:\t\t{}".format(key, value['name']))
 
 def saveObj(obj, name ):
     with open('dataset/' + name + '.pkl', 'wb') as f:
