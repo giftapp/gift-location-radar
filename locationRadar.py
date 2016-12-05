@@ -20,7 +20,7 @@ LOCATIONS = {
     'Beer Sheva'    : (31.251320, 34.793456),
     'South'         : (29.797318, 34.939234),
 }
-SEARCH_KEYWORDS = [u'אולם_אירועים', u'אולם_חתונות', u'Wedding_Venue', u'Wedding_Hall', u'Event_Venue']
+SEARCH_KEYWORDS = [u'גן_אירועים', u'אולם_אירועים', u'אולם_חתונות', u'Wedding_Venue', u'Wedding_Hall', u'Event_Venue']
 
 def main(argv):
     # Usage check
