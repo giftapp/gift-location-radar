@@ -10,6 +10,10 @@ import sys
 import requests
 import json
 import pickle
+import _mysql
+import MySQLdb
+import uuid
+import datetime
 from progressbar import ProgressBar, Percentage, Bar
 
 GOOGLE_PLACES_API_KEY = "AIzaSyAJkYNnUYUzOWmyN1qunzLBeroz5zeTDpE"
@@ -25,7 +29,7 @@ SEARCH_KEYWORDS = [u'גן_אירועים', u'אולם_אירועים', u'אול�
 def main(argv):
     # Usage check
     if 2 != len(argv):
-        print("Usage: python {} fetch|list".format(argv[0]))
+        print("Usage: python {} fetch|list|push".format(argv[0]))
         return -1
 
     task = argv[1]
@@ -33,6 +37,8 @@ def main(argv):
         fetchPlaces()
     elif task == 'list':
         listPlaces()
+    elif task == 'push':
+        pushPlaces()
     else:
         print("Unknown task {}".format(task))
 
@@ -94,6 +100,55 @@ def listPlaces():
     print("place_id\t\t\t\t\tname")
     for key,value in placesDict.items():
         print("{}:\t\t{}".format(key, value['name']))
+
+def pushPlaces():
+    placesDict = loadObj("placesDict")
+    print("Pushing {} places".format(len(placesDict)))
+
+    # Open database connection
+    db = MySQLdb.connect("localhost", "root", "admin", "giftdb")
+    c = db.cursor()
+
+    # Prepare SQL query to INSERT a record into the database.
+    sql = "INSERT INTO HALL(id, created_at, google_place_id, name, address, phone_number, latitude, longitude, google_maps_url, website, image_url, approved_state) " \
+          "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) " \
+          "ON DUPLICATE KEY " \
+          "UPDATE id=id "
+    rowsToInsert = []
+    for key,value in placesDict.items():
+        id = str(uuid.uuid4())
+        created_at = datetime.datetime.now()
+        google_place_id = getValueIfExist(value, "place_id")
+        name = getValueIfExist(value, "name")
+        address = getValueIfExist(value, "formatted_address")
+        phone_number = getValueIfExist(value, "formatted_phone_number")
+        latitude = value["geometry"]["location"]["lat"]
+        longitude = value["geometry"]["location"]["lng"]
+        google_maps_url = getValueIfExist(value, "url")
+        website = getValueIfExist(value, "website")
+        image_url = "TBD"
+        approved_state = "Pending"
+
+        rowsToInsert.append((id, created_at, google_place_id, name, address, phone_number, latitude, longitude, google_maps_url, website, image_url, approved_state))
+    try:
+        # Execute the SQL command
+        c.executemany(sql, rowsToInsert)
+        # Commit your changes in the database
+        db.commit()
+    except Exception as e:
+        # Rollback in case there is any error
+        print(str(e))
+        print("Error while inserting, Rolling back")
+        db.rollback()
+
+    # disconnect from server
+    db.close()
+    print("Done")
+
+def getValueIfExist(dict, key):
+    if dict.__contains__(key):
+        return dict[key]
+    return ""
 
 def saveObj(obj, name ):
     with open('dataset/' + name + '.pkl', 'wb') as f:
