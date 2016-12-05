@@ -15,10 +15,10 @@ from progressbar import ProgressBar, Percentage, Bar
 GOOGLE_PLACES_API_KEY = "AIzaSyAJkYNnUYUzOWmyN1qunzLBeroz5zeTDpE"
 SEARCH_RADIUS = 50000
 LOCATIONS = {
-    'North' : (32.781457, 35.309147),
-    'Tel Aviv' : (32.088162,34.782470),
-    'Beer Sheva' : (31.251320, 34.793456),
-    'South' : (29.797318, 34.939234),
+    'North'         : (32.781457, 35.309147),
+    'Tel Aviv'      : (32.088162,34.782470),
+    'Beer Sheva'    : (31.251320, 34.793456),
+    'South'         : (29.797318, 34.939234),
 }
 SEARCH_KEYWORDS = [u'אולם_אירועים', u'אולם_חתונות', u'Wedding_Venue', u'Wedding_Hall', u'Event_Venue']
 
